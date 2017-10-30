@@ -23,7 +23,7 @@ public:
 	std::vector<int> ts;
 
 	std::vector<int> t;
-
+	bool success = false;
 
 	void computeDistancesFrom(int sourceVertexId, std::vector<double> *dists);
 	void computeSinglePath(int sourceVertexId, int targetVertexId, std::vector<array<double, 3>> *path, bool isMeshUpdate = true);

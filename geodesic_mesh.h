@@ -30,13 +30,13 @@ public:
 	~Mesh(){};
 
 	template<class Points, class Faces>
-	void initialize_mesh_data(unsigned num_vertices,
+	bool initialize_mesh_data(unsigned num_vertices,
 							  Points& p, 
 							  unsigned num_faces,
 							  Faces& tri);		//build mesh from regular point-triangle representation
 
 	template<class Points, class Faces>
-	void initialize_mesh_data(Points& p, Faces& tri);		//build mesh from regular point-triangle representation
+	bool initialize_mesh_data(Points& p, Faces& tri);		//build mesh from regular point-triangle representation
 
 	std::vector<Vertex>& vertices(){return m_vertices;};
 	std::vector<Edge>& edges(){return m_edges;};
@@ -47,7 +47,7 @@ public:
 
 private:
 
-	void build_adjacencies();		//build internal structure of the mesh
+	bool build_adjacencies();		//build internal structure of the mesh
 	bool verify();					//verifies connectivity of the mesh and prints some debug info
 
 	typedef void* void_pointer;
@@ -110,18 +110,18 @@ inline unsigned Mesh::closest_vertices(SurfacePoint* p,
 }
 
 template<class Points, class Faces>
-void Mesh::initialize_mesh_data(Points& p, Faces& tri)		//build mesh from regular point-triangle representation
+bool Mesh::initialize_mesh_data(Points& p, Faces& tri)		//build mesh from regular point-triangle representation
 {
 	assert(p.size() % 3 == 0);
 	unsigned const num_vertices = p.size() / 3;
 	assert(tri.size() % 3 == 0);
 	unsigned const num_faces = tri.size() / 3; 
 
-	initialize_mesh_data(num_vertices, p, num_faces, tri);
+	return initialize_mesh_data(num_vertices, p, num_faces, tri);
 }
 
 template<class Points, class Faces>
-void Mesh::initialize_mesh_data(unsigned num_vertices,
+bool Mesh::initialize_mesh_data(unsigned num_vertices,
 								Points& p, 
 								unsigned num_faces,
 								Faces& tri)
@@ -159,10 +159,10 @@ void Mesh::initialize_mesh_data(unsigned num_vertices,
 		}
 	}
 
-	build_adjacencies();	//build the structure of the mesh
+	return build_adjacencies(); //build the structure of the mesh
 }
 
-inline void Mesh::build_adjacencies()
+inline bool Mesh::build_adjacencies()
 {
 	//		Vertex->adjacent Faces
 	std::vector<unsigned> count(m_vertices.size());	//count adjacent vertices
@@ -359,7 +359,13 @@ inline void Mesh::build_adjacencies()
 		}
 	}
 
-	assert(verify());
+	//assert(verify());
+	if (verify() == false){
+		std::cout << "Mesh can't be created" << std::endl;
+		return false;
+	}
+		
+	return true;
 }
 
 inline bool Mesh::verify()		//verifies connectivity of the mesh and prints some debug info
@@ -374,7 +380,13 @@ inline bool Mesh::verify()		//verifies connectivity of the mesh and prints some 
 		map[e->adjacent_vertices()[0]->id()] = true;
 		map[e->adjacent_vertices()[1]->id()] = true;
 	}
-	assert(std::find(map.begin(), map.end(), false) == map.end());
+	//assert(std::find(map.begin(), map.end(), false) == map.end());
+
+	if (!(std::find(map.begin(), map.end(), false) == map.end())){
+		std::cout << "Map assertion failed" << std::endl;
+		return false;
+	}
+		
 
 	//make sure that the mesh is connected trough its edges
 	//if mesh has more than one connected component, it is most likely a bug
@@ -401,7 +413,13 @@ inline bool Mesh::verify()		//verifies connectivity of the mesh and prints some 
 			}
 		}
 	}
-	assert(std::find(map.begin(), map.end(), false) == map.end());
+	//assert(std::find(map.begin(), map.end(), false) == map.end());
+
+	if (!(std::find(map.begin(), map.end(), false) == map.end())){
+		std::cout << "hey" << std::endl;
+		return false;
+	}
+		
 
 	//print some mesh statistics that can be useful in debugging
 	/*std::cout << "mesh has "	<< m_vertices.size() 

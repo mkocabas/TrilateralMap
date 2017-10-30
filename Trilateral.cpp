@@ -1,4 +1,8 @@
 #include "Trilateral.h"
+#include <direct.h>
+#include <time.h>
+#include <random>
+
 int firstElement_(std::pair<int, double> &p){
 	return p.first;
 }
@@ -21,7 +25,6 @@ void print_vector(char* header, std::vector<int> v){
 	std::cout << "\n" << endl;
 }
 
-
 void print_vector(char* header, std::vector<double> v){
 	std::cout << header;
 	std::ostream_iterator<double> out_it(std::cout, " ");
@@ -30,9 +33,14 @@ void print_vector(char* header, std::vector<double> v){
 }
 
 std::vector<int> slice(std::vector<int> v, int start, int end) {
-	std::cout << "start-end: " << start << "-" << end << endl;
-	//assert(start != end);
+	//std::cout << "start-end: " << start << "-" << end << endl;
+	assert(start != end);
 	assert(start >= 0 && end >= 0 && start != end);
+
+	if (start < 0 && end < 0 && start == end){
+		std::vector<int> a;
+		return a;
+	}
 	if (start > end){
 		int temp = end;
 		end = start;
@@ -55,44 +63,153 @@ void remove_duplicates(std::vector<int>& v)
 	v.erase(last, v.end());
 }
 
-Trilateral::Trilateral(int _v1, int _v2, int _v3, int _gridSize, Mesh* m, char* filename)
+Trilateral::Trilateral(int _gridSize, char* filename)
 {
-	v1 = _v1;
-	v2 = _v2;
-	v3 = _v3;
+	mesh = new Mesh;
+	mesh->loadOff(filename);
 	gridSize = _gridSize;
-	mesh = m;
 	geo = new ExactGeodesic(filename);
-
+	fname = filename;
 	//std::string str(filename);
-	f_name = filename;
+	meshFilename = filename;
+	
+	histogramFilename = "logs/histogram-" + meshFilename.substr(5) + ".txt";
 }
 
 Trilateral::~Trilateral()
 {
 }
 
-int Trilateral::betterThanInit(){
+int Trilateral::initialize(int a, int b, int c){
+
+	v1 = a;
+	v2 = b;
+	v3 = c;
+	ov1 = a;
+	ov2 = b;
+	ov3 = c;
+
+	//getNormalVectors();
+
+	/*float d12, d23, d31;
+	d12 = angleDegreeBetweenVectors(a, b);
+	d23 = angleDegreeBetweenVectors(b, c);
+	d31 = angleDegreeBetweenVectors(c, a);
+
+	if (d12 > 120.0 || d23 > 120.0 || d31 > 120.0)
+	{
+		std::cout << "Vertices aren't appropriate" << endl;
+		return -11;
+	}*/
+
+	int p1 = getBoundary();
+
+	if (p1 <= 0){
+		std::cout << "Boundary edges couldn't be created." << endl;
+		return -1;		
+	}
+		
+
+	int p2 = extractMesh();
+
+	if (p2 <= 0){
+		std::cout << "Inner mesh couldn't be created." << endl;
+		return -2;
+	}
+		
+
+	int p3 = constructInnerTris();
+
+	if (p3 <= 0){
+		std::cout << "Triangles couldn't be created." << endl;
+		return -3;
+	}
+		
+	int p4 = findIntersections();
+
+	if (p4 <= 0)
+		return -4;
+
+	int p5 = findChunks();
+
+	if (p5 <= 0)
+		return -5;
+
+	int p6 = combineChunks();
+
+	if (p6 <= 0)
+		return -6;
+
+	int p7 = getQuadArea();
+
+	if (p7 <= 0)
+		return -7;
+
+	int p8 = getTriArea();
+
+	if (p8 <= 0)
+		return -8;
+
+	int p9 = getAreaHistogram();
+
+	if (p9 <= 0){
+		std::cout << "Histogram couldn't be calculated." << endl;
+		return -9;
+	}
+		
+	int p10 = print2File();
+	
+	if (p10 <= 0){
+		std::cout << "Couldn't be written" << endl;
+		return -10;
+	}
+	return 1;
+}
+
+int Trilateral::getBoundary(){
+	if (v1 == v2 || v2 == v3 || v3 == v1)
+		return -1; // If the vertices are same, break
+
+	// find boundary vertices
 	geo->computeSinglePath(v1, v2, &path1to2);
 	geo->computeSinglePath(v2, v3, &path2to3);
 	geo->computeSinglePath(v3, v1, &path3to1);
 	mesh = geo->myMesh;
 
-	if (v1 == v2)
-		return 0;
-
+	// reverse them to read correctly
 	std::reverse(path1to2.begin(), path1to2.end());
 	std::reverse(path2to3.begin(), path2to3.end());
 	std::reverse(path3to1.begin(), path3to1.end());
 
-	assert(path1to2.size() > gridSize);
-	assert(path2to3.size() > gridSize);
-	assert(path3to1.size() > gridSize);
+	if (path1to2.size() < gridSize || path2to3.size() < gridSize || path3to1.size() < gridSize)
+		return -2; // If the paths' size are less than grid size, break
 
+	// Get paths as int vectors
 	verts_t p1to2, p2to3, p3to1;
+
 	p1to2 = getIntVector_(&path1to2);
 	p2to3 = getIntVector_(&path2to3);
 	p3to1 = getIntVector_(&path3to1);
+
+	/*print_vector("p1to2: ", p1to2);
+	print_vector("p2to3: ", p2to3);
+	print_vector("p3to1: ", p3to1);*/
+
+	auto it = std::unique(p1to2.begin(), p1to2.end());
+	bool wasUnique1to2 = (it == p1to2.end());
+
+	auto it2 = std::unique(p2to3.begin(), p2to3.end());
+	bool wasUnique2to3 = (it2 == p2to3.end());
+
+	auto it3 = std::unique(p3to1.begin(), p3to1.end());
+	bool wasUnique3to1 = (it3 == p3to1.end());
+
+	std::cout << wasUnique1to2 << endl;
+	std::cout << wasUnique2to3 << endl;
+	std::cout << wasUnique3to1 << endl;
+
+	if (wasUnique1to2 == false || wasUnique1to2 == false || wasUnique1to2 == false)
+		return -3;
 
 	i_path1to2 = p1to2;
 	i_path2to3 = p2to3;
@@ -104,28 +221,48 @@ int Trilateral::betterThanInit(){
 
 	remove_duplicates(periphery);
 
+	return 1;
+}
+
+int Trilateral::extractMesh(){
+	verts_t p1to2, p2to3, p3to1;
+	p1to2 = getIntVector_(&path1to2);
+	p2to3 = getIntVector_(&path2to3);
+	p3to1 = getIntVector_(&path3to1);
+
 	vector<bool> v(mesh->verts.size(), true);
 	visited = v;
 
-	/*int o = findInsideVert();
-	std::cout << "Flood fill vertex: " << o << endl;
-	floodFill(o);*/
+	int o = findInsideVert_new();
 
-	insideVerts.insert(insideVerts.begin(), p1to2.begin(), p1to2.end());
-	insideVerts.insert(insideVerts.begin(), p2to3.begin(), p2to3.end());
-	insideVerts.insert(insideVerts.begin(), p3to1.begin(), p3to1.end());
+	if (o == periphery[0] || std::find(periphery.begin(), periphery.end(), o) != periphery.end())
+		return -1;
+
+	floodFill(o);
+
+	if (recursionIteration == recursionLimit - 1)
+		return -4;
+
+	insideVerts.insert(insideVerts.begin(), periphery.begin(), periphery.end());
+	//insideVerts.insert(insideVerts.begin(), p2to3.begin(), p2to3.end());
+	//insideVerts.insert(insideVerts.begin(), p3to1.begin(), p3to1.end());
 
 	remove_duplicates(insideVerts);
+
 	std::vector<int> mTriangles = verts2triIds(insideVerts);
 
-	std::cout << "Inside size: " << insideVerts.size() << endl;
-	std::cout << "Triangles size: " << mTriangles.size() << endl;
-
-	
+	//std::cout << "Inside size: " << insideVerts.size() << endl;
+	if (insideVerts.size() < 1)
+		return -2;
+	//std::cout << "Triangles size: " << mTriangles.size() << endl;
+	if (mTriangles.size() < 1)
+		return -3;
 
 	std::vector<int> old;
 	std::vector<double> newVerts;
 	std::vector<int> newTriangles;
+
+	// Construct the new mesh
 	for (int i = 0; i < mTriangles.size(); i++)
 	{
 		int v1i = mesh->tris[mTriangles[i]]->v1i;
@@ -154,98 +291,67 @@ int Trilateral::betterThanInit(){
 		newVerts.push_back(mesh->verts[old[i]]->coords[2]);
 	}
 
+	/////////////////////////////// Check there //////////////////////////////
 	mesh = new Mesh();
 	mesh->loadMesh(&newVerts, &newTriangles);
-}
 
-void Trilateral::ratherThanInit(){
-	Dijkstra* d = new Dijkstra(mesh);
-	verts_t p1to2, p2to3, p3to1;
-	p1to2 = d->computeSinglePathInMesh(v1, v2);
-	p2to3 = d->computeSinglePathInMesh(v2, v3);
-	p3to1 = d->computeSinglePathInMesh(v3, v1);
+	geo = new ExactGeodesic(newVerts, newTriangles);
+
+	bool success = geo->success;
+	//std::cout << success << endl;
+	if (success == 0){
+		//std::cout << "hey" << endl;
+		return -5;
+	}
+		
+
+	geo->myMesh = new Mesh();
+	geo->myMesh->loadMesh(&newVerts, &newTriangles);
+
+	v1 = std::find(old.begin(), old.end(), v1) - old.begin();
+	v2 = std::find(old.begin(), old.end(), v2) - old.begin();
+	v3 = std::find(old.begin(), old.end(), v3) - old.begin();
+
+	/*std::cout << v1 << endl;
+	std::cout << v2 << endl;
+	std::cout << v3 << endl;
+
+	std::cout << mesh->verts.size() << endl;
+	std::cout << mesh->tris.size() << endl;*/
+
+	for (size_t i = 0; i < p1to2.size(); i++)
+		p1to2[i] = std::find(old.begin(), old.end(), p1to2[i]) - old.begin();
+	for (size_t i = 0; i < p2to3.size(); i++)
+		p2to3[i] = std::find(old.begin(), old.end(), p2to3[i]) - old.begin();
+	for (size_t i = 0; i < p3to1.size(); i++)
+		p3to1[i] = std::find(old.begin(), old.end(), p3to1[i]) - old.begin();
+	for (size_t i = 0; i < periphery.size(); i++)
+		periphery[i] = std::find(old.begin(), old.end(), periphery[i]) - old.begin();
 
 	i_path1to2 = p1to2;
 	i_path2to3 = p2to3;
 	i_path3to1 = p3to1;
 
-	periphery.insert(periphery.begin(), p1to2.begin(), p1to2.end());
-	periphery.insert(periphery.begin(), p2to3.begin(), p2to3.end());
-	periphery.insert(periphery.begin(), p3to1.begin(), p3to1.end());
-
-	vector<bool> v(mesh->verts.size(), true);
-	visited = v;
-
-	int o = findInsideVert();
-	std::cout << "Flood fill vertex: " << o << endl;
-	floodFill(o);
-
-	insideVerts.insert(insideVerts.begin(), p1to2.begin(), p1to2.end());
-	insideVerts.insert(insideVerts.begin(), p2to3.begin(), p2to3.end());
-	insideVerts.insert(insideVerts.begin(), p3to1.begin(), p3to1.end());
-
-	remove_duplicates(insideVerts);
-
-	std::vector<int> mTriangles = verts2triIds(insideVerts);
-
-	std::cout << "Inside size: " << insideVerts.size() << endl;
-	std::cout << "Triangles size: " << mTriangles.size() << endl;
-
-	std::vector<int> old;
-	std::vector<double> newVerts;
-	std::vector<int> newTriangles;
-	for (int i = 0; i < mTriangles.size(); i++)
-	{
-		int v1i = mesh->tris[mTriangles[i]]->v1i;
-		int v2i = mesh->tris[mTriangles[i]]->v2i;
-		int v3i = mesh->tris[mTriangles[i]]->v3i;
-
-		int nv1, nv2, nv3;
-		if (std::find(old.begin(), old.end(), v1i) != old.end()){ nv1 = std::find(old.begin(), old.end(), v1i) - old.begin(); }
-		else { old.push_back(v1i); nv1 = old.size() - 1; }
-
-		if (std::find(old.begin(), old.end(), v2i) != old.end()){ nv2 = std::find(old.begin(), old.end(), v2i) - old.begin(); }
-		else { old.push_back(v2i); nv2 = old.size() - 1;  }
-
-		if (std::find(old.begin(), old.end(), v3i) != old.end()){ nv3 = std::find(old.begin(), old.end(), v3i) - old.begin(); }
-		else { old.push_back(v3i); nv3 = old.size() - 1; }
-
-		newTriangles.push_back(nv1);
-		newTriangles.push_back(nv2);
-		newTriangles.push_back(nv3);
+	for (size_t i = 0; i < path1to2.size(); i++){
+		path1to2[i].first = p1to2[i];
+		path1to2[i].second = path1to2[i].second;
 	}
 
-	for (size_t i = 0; i < old.size(); i++)
-	{
-		newVerts.push_back(mesh->verts[old[i]]->coords[0]);
-		newVerts.push_back(mesh->verts[old[i]]->coords[1]);
-		newVerts.push_back(mesh->verts[old[i]]->coords[2]);
+	for (size_t i = 0; i < path2to3.size(); i++){
+		path2to3[i].first = p2to3[i];
+		path2to3[i].second = path2to3[i].second;
 	}
 
-	/*mesh = new Mesh();
-	mesh->loadMesh(&newVerts, &newTriangles);*/
+	for (size_t i = 0; i < path3to1.size(); i++){
+		path3to1[i].first = p3to1[i];
+		path3to1[i].second = path3to1[i].second;
+	}
+
+	return 1;
 }
 
-void Trilateral::init()
+int Trilateral::constructInnerTris()
 {
-	/* Outer Triangle */
-	geo->computeSinglePath(v1, v2, &path1to2);
-	geo->computeSinglePath(v2, v3, &path2to3);
-	geo->computeSinglePath(v3, v1, &path3to1);
-
-	std::reverse(path1to2.begin(), path1to2.end());
-	std::reverse(path2to3.begin(), path2to3.end());
-	std::reverse(path3to1.begin(), path3to1.end());
-
-	print_vector("path1to2: ", getIntVector_(&path1to2));
-	print_vector("path2to3: ", getIntVector_(&path2to3));
-	print_vector("path3to1: ", getIntVector_(&path3to1));
-	std::cout << "paths done" << endl;
-
-	assert(path1to2.size() > gridSize);
-	assert(path2to3.size() > gridSize);
-	assert(path3to1.size() > gridSize);
-
 	/* Samples on edges */
 	getSampleVertices(&path1to2, &sample1to2);
 	getSampleVertices(&path2to3, &sample2to3);
@@ -255,57 +361,61 @@ void Trilateral::init()
 	print_vector("sample2to3: ", sample2to3);
 	print_vector("sample3to1: ", sample3to1);
 	std::cout << "sample verts done" << endl;
-	/* Find an inside vertex */
-
-	/* Find the insideMesh tris */
-	i_path1to2 = getIntVector_(&path1to2);
-	i_path2to3 = getIntVector_(&path2to3);
-	i_path3to1 = getIntVector_(&path3to1);	
-	
-	periphery.insert(periphery.begin(), i_path1to2.begin(), i_path1to2.end());
-	periphery.insert(periphery.begin(), i_path2to3.begin(), i_path2to3.end());
-	periphery.insert(periphery.begin(), i_path3to1.begin(), i_path3to1.end());
-
-
-	mesh = new Mesh();
-	mesh = geo->myMesh;
-
-	vector<bool> v(mesh->verts.size(), true);
-	visited = v;
-
-	fillPaths2Inside(&i_path1to2);
-	fillPaths2Inside(&i_path2to3);
-	fillPaths2Inside(&i_path3to1);
-
-	int o = findInsideVert();
-	std::cout << "Flood fill vertex: " << o << endl;
-	floodFill(o);
-	//floodFill(1492);
-
-	remove_duplicates(insideVerts);
-	
-	std::cout << "Flood fill done" << endl;
 
 	/* Reverse sample vectors to properly find inter paths between them */
-	
-	std::reverse(sample1to2.begin(), sample1to2.end());
+	/*std::reverse(sample1to2.begin(), sample1to2.end());
 	std::reverse(sample2to3.begin(), sample2to3.end());
-	std::reverse(sample3to1.begin(), sample3to1.end());
+	std::reverse(sample3to1.begin(), sample3to1.end());*/
 
+	auto it = std::unique(sample1to2.begin(), sample1to2.end());
+	bool wasUnique1to2 = (it == sample1to2.end());
+
+	auto it2 = std::unique(sample2to3.begin(), sample2to3.end());
+	bool wasUnique2to3 = (it2 == sample2to3.end());
+
+	auto it3 = std::unique(sample3to1.begin(), sample3to1.end());
+	bool wasUnique3to1 = (it3 == sample3to1.end());
+
+	/*std::cout << wasUnique1to2 << endl;
+	std::cout << wasUnique2to3 << endl;
+	std::cout << wasUnique3to1 << endl;
+	*/
+	if (wasUnique1to2 == false || wasUnique1to2 == false || wasUnique1to2 == false){
+		std::cout << "Samples are inappropriate" << endl;
+		return -4;
+	}
+		
+
+	/*if (std::adjacent_find(sample1to2.begin(), sample1to2.end(), std::not_equal_to<int>()) == sample1to2.end())
+	{
+		std::cout << "All elements are equal each other" << std::endl;
+		return -4;
+	}
+	if (std::adjacent_find(sample1to2.begin(), sample1to2.end(), std::not_equal_to<int>()) == sample1to2.end())
+	{
+		std::cout << "All elements are equal each other" << std::endl;
+		return -4;
+	}
+	if (std::adjacent_find(sample1to2.begin(), sample1to2.end(), std::not_equal_to<int>()) == sample1to2.end())
+	{
+		std::cout << "All elements are equal each other" << std::endl;
+		return -4;
+	}*/
+	//
 	/* Find inter geodesics on that mesh */
-	std::cout << "\n1st connections:\n";
+	//std::cout << "\n1st connections:\n";
 	fillInterPaths(&sample1to2, &sample2to3, &inter1);
-	std::cout << "\n2nd connections:\n";
+	//std::cout << "\n2nd connections:\n";
 	fillInterPaths(&sample1to2, &sample3to1, &inter2);
-	std::cout << "inter done" << endl;
+	//std::cout << "inter done" << endl;
 
 	/* Restore correct paths */
-	std::cout << "Restoring correct paths" << endl;
+	//std::cout << "Restoring correct paths" << endl;
 	d = new Dijkstra(geo->myMesh);
 	fillInterPathsDijkstra(&sample1to2, &sample2to3, &inter1_dijkstra);
-	std::cout << "\n2nd connections:\n";	
+	//std::cout << "\n2nd connections:\n";
 	fillInterPathsDijkstra(&sample1to2, &sample3to1, &inter2_dijkstra);
-	std::cout << "inter done" << endl;
+	//std::cout << "inter done" << endl;
 
 	std::reverse(inter1_dijkstra.begin(), inter1_dijkstra.end());
 	std::reverse(inter2_dijkstra.begin(), inter2_dijkstra.end());
@@ -321,21 +431,11 @@ void Trilateral::init()
 	sample3to1.push_back(v1);
 
 	mesh = geo->myMesh;
-	findIntersections();
-	findChunks();
-	combineChunks();
 
-	getQuadArea();
-	getTriArea();
-	getAreaHistogram(true);
-
-	/*std::cout << "Intersections size: " << intersections.size() << endl;
-	std::cout << "Intersections 0 size: " << intersections[0].size() << endl;
-	std::cout << "Intersections 1 size: " << intersections[1].size() << endl;
-	std::cout << "Intersections 2 size: " << intersections[2].size() << endl;*/
-
+	return 1;
 }
-void Trilateral::getAreaHistogram(bool print = true){
+
+int Trilateral::getAreaHistogram(){
 	int idx = 0;
 	double sum = 0.0;
 	for (auto& n : quadAreas)
@@ -344,7 +444,7 @@ void Trilateral::getAreaHistogram(bool print = true){
 	for (auto& n : triAreas)
 		sum += n;
 
-	std::cout << "Sum: " << sum << endl;
+	//std::cout << "Sum: " << sum << endl;
 
 	for (size_t i = 0; i < gridSize; i++)
 	{
@@ -362,47 +462,73 @@ void Trilateral::getAreaHistogram(bool print = true){
 	histogram.push_back(layer);
 
 	std::reverse(histogram.begin(), histogram.end());
-	std::string hist_filename = "histogram-" + f_name.substr(5) + '-' + std::to_string(v1) + 
-		'-' + std::to_string(v2) + 
-		'-' + std::to_string(v3) + 
-		'-' + std::to_string(gridSize) + ".txt";
 
-	std::cout << hist_filename << endl;
+	for (size_t i = 0; i < histogram.size(); i++)
+		print_vector("", histogram[i]);
 
-	if (print){
-		for (size_t i = 0; i < histogram.size(); i++)
-			print_vector("", histogram[i]);
+	return 1;
+}
 
-		ofstream file(hist_filename);
+int Trilateral::print2File(){
 
-		if (file.is_open())
+	std::cout << "OK" << endl;
+	mkdir("logs");
+
+	/*for (size_t i = 0; i < histogram.size(); i++)
+		print_vector("", histogram[i]);*/
+
+	std::string out = std::to_string(ov1) + " " +
+		std::to_string(ov2) + " " +
+		std::to_string(ov3) + " " +
+		std::to_string(gridSize) + " ";
+
+	// Construct the string
+	for (size_t i = 0; i < histogram.size(); i++)
+	{
+		for (size_t j = 0; j < histogram[i].size(); j++)
 		{
-			for (size_t i = 0; i < histogram.size(); i++)
-			{
-				for (size_t j = 0; j < histogram[i].size(); j++)
-				{
-					if (j == histogram[histogram.size() - 1].size() - 1)
-						file << histogram[i][j];
-					else
-						file << histogram[i][j] << " ";
-				}
-
-				for (size_t t = 0; t < histogram[histogram.size() - 1].size() - histogram[i].size(); t++)
-				{
-					if (t == histogram[histogram.size() - 1].size() - 1)
-						file << "0.0";
-					else
-						file << "0.0 ";
-				}
-				file << "\n";
-			}
-			file.close();
+			if (j == histogram[histogram.size() - 1].size() - 1)
+				out.append(std::to_string(histogram[i][j]));
+			else
+				out.append(std::to_string(histogram[i][j]) + " ");
 		}
-		else cout << "Unable to open file";
+
+		for (size_t t = 0; t < histogram[histogram.size() - 1].size() - histogram[i].size(); t++)
+		{
+			if (t == histogram[histogram.size() - 1].size() - 1)
+				out.append("0.0");
+			else
+				out.append("0.0 ");
+		}
+	}
+	
+	// Write to file
+	std::ofstream file;
+	file.open(histogramFilename, std::ofstream::out | std::ofstream::app);
+
+	if (file.is_open())
+	{
+		file.seekp(0, ios::end);
+		size_t size = file.tellp();
+		if (size == 0)
+		{
+			file << out;
+		}
+		else
+		{
+			file << "\n" + out;
+		}
+		
+		file.close();
+		return 1;
+	}
+	else{
+		cout << "Unable to open file";
+		return -1;
 	}
 }
 
-void Trilateral::combineChunks(){
+int Trilateral::combineChunks(){
 	for (size_t i = 0; i < quads.size(); i++)
 	{
 		for (size_t j = 0; j < quads[i].chunks.size(); j++)
@@ -416,10 +542,12 @@ void Trilateral::combineChunks(){
 		for (size_t j = 0; j < tris[i].chunks.size(); j++)
 			tris[i].combinedChunks.insert(tris[i].combinedChunks.begin(), tris[i].chunks[j].begin(), tris[i].chunks[j].end());
 		remove_duplicates(tris[i].combinedChunks);
-	}	
+	}
+
+	return 1;
 }
 
-void Trilateral::getQuadArea(){
+int Trilateral::getQuadArea(){
 	for (size_t i = 0; i < quads.size(); i++)
 	{
 		quad q = quads[i];
@@ -442,10 +570,12 @@ void Trilateral::getQuadArea(){
 			quads[i].insideTriangleIds = tris;
 			quads[i].area = t_findTriangleArea(tris);
 		}
-		std::cout << "Area: " << quads[i].area << endl;
+		//std::cout << "Area: " << quads[i].area << endl;
 		quadAreas.push_back(quads[i].area);
 		inQuad.clear();
 	}
+
+	return 1;
 }
 
 void Trilateral::q_runFloodFill(quad q, int in){
@@ -462,6 +592,17 @@ std::vector<int> Trilateral::verts2triIds(std::vector<int> v){
 		int v1i = mesh->tris[i]->v1i;
 		int v2i = mesh->tris[i]->v2i;
 		int v3i = mesh->tris[i]->v3i;
+
+		/*bool p1 = std::find(periphery.begin(), periphery.end(), v1i) != periphery.end();
+		bool p2 = std::find(periphery.begin(), periphery.end(), v2i) != periphery.end();
+		bool p3 = std::find(periphery.begin(), periphery.end(), v3i) != periphery.end();
+
+		int p_condition = p1 + p2 + p3;
+
+		if (p_condition == 2)
+		{
+			tris.push_back(mesh->tris[i]->idx);
+		}*/
 
 		bool e1 = std::find(v.begin(), v.end(), v1i) != v.end();
 		bool e2 = std::find(v.begin(), v.end(), v2i) != v.end();
@@ -570,7 +711,7 @@ void Trilateral::q_visit(int v){
 	inQuad.push_back(v);
 }
 
-void Trilateral::getTriArea(){
+int Trilateral::getTriArea(){
 	for (size_t i = 0; i < tris.size(); i++)
 	{
 		tri q = tris[i];
@@ -593,10 +734,12 @@ void Trilateral::getTriArea(){
 			tris[i].insideTriangleIds = triangles;
 			tris[i].area = t_findTriangleArea(triangles);
 		}
-		std::cout << "Area: " << tris[i].area << endl;
+		//std::cout << "Area: " << tris[i].area << endl;
 		triAreas.push_back(tris[i].area);
 		inTri.clear();
 	}
+
+	return 1;
 }
 
 void Trilateral::t_runFloodFill(tri q, int in){
@@ -643,10 +786,10 @@ void Trilateral::t_visit(int v){
 	inTri.push_back(v);
 }
 
-void Trilateral::findIntersections(){
+int Trilateral::findIntersections(){
 	intersections.push_back(sample2to3);
-	std::cout << "i2 size: " << inter2_dijkstra.size() << endl;
-	std::cout << "i1 size: " << inter1_dijkstra.size() << endl;
+	//std::cout << "i2 size: " << inter2_dijkstra.size() << endl;
+	//std::cout << "i1 size: " << inter1_dijkstra.size() << endl;
 
 	for (int i = 0; i < inter2_dijkstra.size(); i++)
 	{
@@ -664,7 +807,10 @@ void Trilateral::findIntersections(){
 			std::set_intersection(tempPath1.begin(), tempPath1.end(),
 				tempPath2.begin(), tempPath2.end(),
 				std::back_inserter(v_intersection));
-			assert(v_intersection.size() < 2);
+			//assert(v_intersection.size() < 2);
+
+			if (v_intersection.size() >= 2)
+				return -1;
 			//std::cout << v_intersection.size() << endl;//
 			if (v_intersection.size() > 0){
 				/*std::cout << "int: ";
@@ -683,9 +829,11 @@ void Trilateral::findIntersections(){
 			intersections.push_back(layer);
 		}
 	}
+
+	return 1;
 }
 
-void Trilateral::findChunks(){
+int Trilateral::findChunks(){
 	/* Find chunks */
 	inter1_dijkstra.push_back(getIntVector_(&path3to1));
 
@@ -736,16 +884,22 @@ void Trilateral::findChunks(){
 				i_v1tr = std::find(int2first.begin(), int2first.end(), tr.v1q) - int2first.begin();
 				i_v2tr = std::find(int2first.begin(), int2first.end(), tr.v2q) - int2first.begin();
 				tr.chunk1to2 = slice(int2first, i_v1tr, i_v2tr);
+				if (tr.chunk1to2.size() == 0)
+					return -1;
 				//print_vector("slice: ", tr.chunk1to2);
 
 				i_v2tr = std::find(int1first.begin(), int1first.end(), tr.v2q) - int1first.begin();
 				i_v3tr = std::find(int1first.begin(), int1first.end(), tr.v3q) - int1first.begin();
 				tr.chunk2to3 = slice(int1first, i_v2tr, i_v3tr);
+				if (tr.chunk2to3.size() == 0)
+					return -1;
 				//print_vector("slice: ", tr.chunk2to3);
 
 				i_v3tr = std::find(i_path1to2.begin(), i_path1to2.end(), tr.v3q) - i_path1to2.begin();
 				i_v1tr = std::find(i_path1to2.begin(), i_path1to2.end(), tr.v1q) - i_path1to2.begin();
 				tr.chunk3to1 = slice(i_path1to2, i_v3tr, i_v1tr);
+				if (tr.chunk3to1.size() == 0)
+					return -1;
 				//print_vector("slice: ", tr.chunk3to1);
 
 				tr.chunks.push_back(tr.chunk1to2);
@@ -785,21 +939,29 @@ void Trilateral::findChunks(){
 				i_v1q = std::find(int2first.begin(), int2first.end(), q.v1q) - int2first.begin();
 				i_v2q = std::find(int2first.begin(), int2first.end(), q.v2q) - int2first.begin();
 				q.chunk1to2 = slice(int2first, i_v1q, i_v2q);
+				if (q.chunk1to2.size() == 0)
+					return -1;
 				//print_vector("slice: ", q.chunk1to2);
 
 				i_v2q = std::find(int1second.begin(), int1second.end(), q.v2q) - int1second.begin();
 				i_v3q = std::find(int1second.begin(), int1second.end(), q.v3q) - int1second.begin();
 				q.chunk2to3 = slice(int1second, i_v2q, i_v3q);
+				if (q.chunk2to3.size() == 0)
+					return -1;
 				//print_vector("slice: ", q.chunk2to3);
 
 				i_v3q = std::find(int2second.begin(), int2second.end(), q.v3q) - int2second.begin();
 				i_v4q = std::find(int2second.begin(), int2second.end(), q.v4q) - int2second.begin();
 				q.chunk3to4 = slice(int2second, i_v3q, i_v4q);
+				if (q.chunk3to4.size() == 0)
+					return -1;
 				//print_vector("slice: ", q.chunk3to4);
 
 				i_v4q = std::find(int1first.begin(), int1first.end(), q.v4q) - int1first.begin();
 				i_v1q = std::find(int1first.begin(), int1first.end(), q.v1q) - int1first.begin();
 				q.chunk4to1 = slice(int1first, i_v4q, i_v1q);
+				if (q.chunk4to1.size() == 0)
+					return -1;
 				//print_vector("slice: ", q.chunk4to1);
 
 				q.chunks.push_back(q.chunk1to2);
@@ -835,23 +997,29 @@ void Trilateral::findChunks(){
 	tr.corners.push_back(tr.v2q);
 	tr.corners.push_back(tr.v3q);
 
-	print_vector("tr: ", tr.corners);
+	//print_vector("tr: ", tr.corners);
 	int i_v1tr, i_v2tr, i_v3tr;
 
 	i_v1tr = std::find(int2first.begin(), int2first.end(), tr.v1q) - int2first.begin();
 	i_v2tr = std::find(int2first.begin(), int2first.end(), tr.v2q) - int2first.begin();
 	tr.chunk1to2 = slice(int2first, i_v1tr, i_v2tr);
-	print_vector("slice: ", tr.chunk1to2);
+	if (tr.chunk1to2.size() == 0)
+		return -1;
+	//print_vector("slice: ", tr.chunk1to2);
 
 	i_v2tr = std::find(int1first.begin(), int1first.end(), tr.v2q) - int1first.begin();
 	i_v3tr = std::find(int1first.begin(), int1first.end(), tr.v3q) - int1first.begin();
 	tr.chunk2to3 = slice(int1first, i_v2tr, i_v3tr);
-	print_vector("slice: ", tr.chunk2to3);
+	if (tr.chunk2to3.size() == 0)
+		return -1;
+	//print_vector("slice: ", tr.chunk2to3);
 
 	i_v3tr = std::find(i_path1to2.begin(), i_path1to2.end(), tr.v3q) - i_path1to2.begin();
 	i_v1tr = std::find(i_path1to2.begin(), i_path1to2.end(), tr.v1q) - i_path1to2.begin();
 	tr.chunk3to1 = slice(i_path1to2, i_v3tr, i_v1tr);
-	print_vector("slice: ", tr.chunk3to1);
+	if (tr.chunk3to1.size() == 0)
+		return -1;
+	//print_vector("slice: ", tr.chunk3to1);
 
 	tr.chunks.push_back(tr.chunk1to2);
 	tr.chunks.push_back(tr.chunk2to3);
@@ -859,8 +1027,10 @@ void Trilateral::findChunks(){
 
 	tris.push_back(tr);
 
-	std::cout << "Tris size: " << tris.size() << endl;
-	std::cout << "Quads size: " << quads.size() << endl;
+	//std::cout << "Tris size: " << tris.size() << endl;
+	//std::cout << "Quads size: " << quads.size() << endl;
+
+	return 1;
 }
 
 void Trilateral::fillInterPathsDijkstra(Trilateral::verts_t *sample1, Trilateral::verts_t *sample2, std::vector<std::vector<int>> *inter_dijkstra){
@@ -897,25 +1067,16 @@ void Trilateral::getSampleVertices(Trilateral::path_t *path, Trilateral::verts_t
 }
 
 void Trilateral::floodFill(int v){
-	if (visited[v] && !stopTest(v)){
+	if (visited[v] && !stopTest(v) && recursionIteration < recursionLimit){
 		visit(v);
+		recursionIteration++;
 		for (int i = 0; i < mesh->verts[v]->vertList.size(); i++)
 			floodFill(mesh->verts[v]->vertList[i]);
 	}
 }
 
 bool Trilateral::stopTest(int v){
-	bool a = std::find(i_path1to2.begin(), i_path1to2.end(), v) != i_path1to2.end();
-	bool b = std::find(i_path2to3.begin(), i_path2to3.end(), v) != i_path2to3.end();
-	bool c = std::find(i_path3to1.begin(), i_path3to1.end(), v) != i_path3to1.end();
-	int sum = a + b + c;
-
-	//std::cout << "Sum: " << sum << endl;
-
-	if (sum > 0)
-		return true;
-	else
-		return false;
+	return std::find(periphery.begin(), periphery.end(), v) != periphery.end();
 }
 
 void Trilateral::visit(int v){
@@ -923,7 +1084,7 @@ void Trilateral::visit(int v){
 	insideVerts.push_back(v);
 }
 
-void Trilateral::getNormalVectors(){
+std::vector<array<double, 3>> Trilateral::getNormalVectors(){
 	for (int i = 0; i < mesh->tris.size(); i++)
 	{
 		int p1 = mesh->tris[i]->v1i;
@@ -988,6 +1149,7 @@ void Trilateral::getNormalVectors(){
 
 		vertNormals.push_back(vN);
 	}
+	return vertNormals;
 }
 
 float Trilateral::angleDegreeBetweenVectors(int p1, int p2){
@@ -999,13 +1161,13 @@ float Trilateral::angleDegreeBetweenVectors(int p1, int p2){
 	float p2y = vertNormals[p2][1];
 	float p2z = vertNormals[p2][2];
 
-	std::cout << "P1 norm vector: <" << p1x << ">,<" << p1y << ">,<" << p1z << ">" << endl;
-	std::cout << "P2 norm vector: <" << p2x << ">,<" << p2y << ">,<" << p2z << ">" << endl;
+	//std::cout << "P1 norm vector: <" << p1x << ">,<" << p1y << ">,<" << p1z << ">" << endl;
+	//std::cout << "P2 norm vector: <" << p2x << ">,<" << p2y << ">,<" << p2z << ">" << endl;
 
 	float nom = (p1x*p2x) + (p1y*p2y) + (p1z*p2z);
 	float denom = sqrt(p1x*p1x + p1y*p1y + p1z*p1z)*sqrt(p2x*p2x + p2y*p2y + p2z*p2z);
 	float ang = acos(nom / denom);
-	std::cout << "Angle between " << p1 << " and " << p2 << ": " << ang*(180.0 / 3.14) << " degrees" << endl;
+	//std::cout << "Angle between " << p1 << " and " << p2 << ": " << ang*(180.0 / 3.14) << " degrees" << endl;
 	return ang*(180.0 / 3.14);
 }
 
@@ -1028,8 +1190,25 @@ bool Trilateral::checkIn(std::vector<double> distS1, std::vector<double> distS2,
 }
 
 int Trilateral::findInsideVert(){
+	/*
 	Dijkstra *f = new Dijkstra(mesh);
 	
+	int mk = periphery[0];
+
+	while (std::find(periphery.begin(), periphery.end(), mk) != periphery.end())
+	{
+		std::mt19937 rng;
+		rng.seed(std::random_device()());
+		std::uniform_int_distribution<std::mt19937::result_type> idx(0, i_path2to3.size() - 1);
+
+		std::cout << "takildi " << idx(rng) << endl;
+		std::vector<int> d1 = f->computeSinglePathInMesh(v1, periphery[periphery.size()/2]);
+		mk = d1[int(d1.size() / 2)];
+	}
+	return mk;
+	*/
+	Dijkstra *f = new Dijkstra(mesh);
+
 	int mk = periphery[0];
 
 	while (std::find(periphery.begin(), periphery.end(), mk) != periphery.end())
@@ -1041,27 +1220,195 @@ int Trilateral::findInsideVert(){
 	return mk;
 }
 
-/*int Trilateral::findInsideVert(){
-	Dijkstra *f = new Dijkstra(mesh);
-	std::vector<double> d1 = f->computeDistancesFrom(v1);
-	std::vector<double> d2 = f->computeDistancesFrom(v2);
-	std::vector<double> d3 = f->computeDistancesFrom(v3);
+int Trilateral::findInsideVert_new(){
 	
-	int cent = -1;
-	for (int i = 0; i < mesh->verts.size(); i++){
-		if (checkIn(d1, d2, d3, i))
-			cent = i;
+	Dijkstra *f = new Dijkstra(mesh);
+
+	int mk = periphery[0];
+
+	for (size_t i = 1; i < i_path2to3.size() - 1; i++)
+	{
+		std::vector<int> d1 = f->computeSinglePathInMesh(v1, i_path2to3[i]);
+		
+		for (size_t j = 0; j < d1.size(); j++)
+		{
+			//std::cout << d1[j] << endl;
+			if (!(std::find(periphery.begin(), periphery.end(), d1[j]) != periphery.end())){
+				mk = d1[j];
+				//std::cout << "Hey: " << mk << endl;
+				break;
+			}
+		}
+		if (mk != periphery[0])
+			break;
 	}
-	assert(cent > 0);
-	return cent;
-}*/
+
+	if (mk == periphery[0]){
+		for (size_t i = 1; i < i_path1to2.size() - 1; i++)
+		{
+			std::vector<int> d1 = f->computeSinglePathInMesh(v3, i_path1to2[i]);
+			for (size_t j = 0; j < d1.size(); j++)
+			{
+				if (!(std::find(periphery.begin(), periphery.end(), d1[j]) != periphery.end())){
+					mk = d1[j];
+					//std::cout << "Hey: " << mk << endl;
+					break;
+				}
+			}
+			if (mk != periphery[0])
+				break;
+		}
+	}
+
+	if (mk == periphery[0]){
+		for (size_t i = 1; i < i_path3to1.size() - 1; i++)
+		{
+			std::vector<int> d1 = f->computeSinglePathInMesh(v2, i_path3to1[i]);
+			for (size_t j = 0; j < d1.size(); j++)
+			{
+				if (!(std::find(periphery.begin(), periphery.end(), d1[j]) != periphery.end())){
+					mk = d1[j];
+					//std::cout << "Hey: " << mk << endl;
+					break;
+				}
+			}
+			if (mk != periphery[0])
+				break;
+		}
+	}
+	return mk;
+}
 
 void Trilateral::fillPaths2Inside(verts_t *p){
 	for (int i = 0; i < p->size(); i++)
 		insideVerts.push_back(p->at(i));
 }
 
+void Trilateral::init()
+{
+	/* Outer Triangle */
+	geo->computeSinglePath(v1, v2, &path1to2);
+	geo->computeSinglePath(v2, v3, &path2to3);
+	geo->computeSinglePath(v3, v1, &path3to1);
 
+	std::reverse(path1to2.begin(), path1to2.end());
+	std::reverse(path2to3.begin(), path2to3.end());
+	std::reverse(path3to1.begin(), path3to1.end());
+
+	print_vector("path1to2: ", getIntVector_(&path1to2));
+	print_vector("path2to3: ", getIntVector_(&path2to3));
+	print_vector("path3to1: ", getIntVector_(&path3to1));
+	std::cout << "paths done" << endl;
+
+	assert(path1to2.size() > gridSize);
+	assert(path2to3.size() > gridSize);
+	assert(path3to1.size() > gridSize);
+
+	/* Samples on edges */
+	getSampleVertices(&path1to2, &sample1to2);
+	getSampleVertices(&path2to3, &sample2to3);
+	getSampleVertices(&path3to1, &sample3to1);
+
+	print_vector("sample1to2: ", sample1to2);
+	print_vector("sample2to3: ", sample2to3);
+	print_vector("sample3to1: ", sample3to1);
+	std::cout << "sample verts done" << endl;
+	/* Find an inside vertex */
+
+	/* Find the insideMesh tris */
+	i_path1to2 = getIntVector_(&path1to2);
+	i_path2to3 = getIntVector_(&path2to3);
+	i_path3to1 = getIntVector_(&path3to1);
+
+	periphery.insert(periphery.begin(), i_path1to2.begin(), i_path1to2.end());
+	periphery.insert(periphery.begin(), i_path2to3.begin(), i_path2to3.end());
+	periphery.insert(periphery.begin(), i_path3to1.begin(), i_path3to1.end());
+
+
+	mesh = new Mesh();
+	mesh = geo->myMesh;
+
+	vector<bool> v(mesh->verts.size(), true);
+	visited = v;
+
+	fillPaths2Inside(&i_path1to2);
+	fillPaths2Inside(&i_path2to3);
+	fillPaths2Inside(&i_path3to1);
+
+	int o = findInsideVert();
+	std::cout << "Flood fill vertex: " << o << endl;
+	floodFill(o);
+	//floodFill(1492);
+
+	remove_duplicates(insideVerts);
+
+	std::cout << "Flood fill done" << endl;
+
+	/* Reverse sample vectors to properly find inter paths between them */
+
+	std::reverse(sample1to2.begin(), sample1to2.end());
+	std::reverse(sample2to3.begin(), sample2to3.end());
+	std::reverse(sample3to1.begin(), sample3to1.end());
+
+	/* Find inter geodesics on that mesh */
+	std::cout << "\n1st connections:\n";
+	fillInterPaths(&sample1to2, &sample2to3, &inter1);
+	std::cout << "\n2nd connections:\n";
+	fillInterPaths(&sample1to2, &sample3to1, &inter2);
+	std::cout << "inter done" << endl;
+
+	/* Restore correct paths */
+	std::cout << "Restoring correct paths" << endl;
+	d = new Dijkstra(geo->myMesh);
+	fillInterPathsDijkstra(&sample1to2, &sample2to3, &inter1_dijkstra);
+	std::cout << "\n2nd connections:\n";
+	fillInterPathsDijkstra(&sample1to2, &sample3to1, &inter2_dijkstra);
+	std::cout << "inter done" << endl;
+
+	std::reverse(inter1_dijkstra.begin(), inter1_dijkstra.end());
+	std::reverse(inter2_dijkstra.begin(), inter2_dijkstra.end());
+
+	/* Add corners to sample vectors */
+	sample1to2.insert(sample1to2.begin(), v1);
+	sample1to2.push_back(v2);
+
+	sample2to3.insert(sample2to3.begin(), v2);
+	sample2to3.push_back(v3);
+
+	sample3to1.insert(sample3to1.begin(), v3);
+	sample3to1.push_back(v1);
+
+	mesh = geo->myMesh;
+	findIntersections();
+	findChunks();
+	combineChunks();
+
+	getQuadArea();
+	getTriArea();
+	getAreaHistogram();
+
+	std::cout << "finished" << endl;
+	/*std::cout << "Intersections size: " << intersections.size() << endl;
+	std::cout << "Intersections 0 size: " << intersections[0].size() << endl;
+	std::cout << "Intersections 1 size: " << intersections[1].size() << endl;
+	std::cout << "Intersections 2 size: " << intersections[2].size() << endl;*/
+
+}
+
+/*int Trilateral::findInsideVert(){
+Dijkstra *f = new Dijkstra(mesh);
+std::vector<double> d1 = f->computeDistancesFrom(v1);
+std::vector<double> d2 = f->computeDistancesFrom(v2);
+std::vector<double> d3 = f->computeDistancesFrom(v3);
+
+int cent = -1;
+for (int i = 0; i < mesh->verts.size(); i++){
+if (checkIn(d1, d2, d3, i))
+cent = i;
+}
+assert(cent > 0);
+return cent;
+}*/
 /*
 insideVerts.push_back(mesh->tris[i]->v1i);
 insideVerts.push_back(mesh->tris[i]->v2i);
@@ -1084,4 +1431,72 @@ inside_ts.push_back(idx + 1);
 inside_ts.push_back(idx + 2);
 
 idx += 3;
+*/
+/*void Trilateral::ratherThanInit(){
+Dijkstra* d = new Dijkstra(mesh);
+verts_t p1to2, p2to3, p3to1;
+p1to2 = d->computeSinglePathInMesh(v1, v2);
+p2to3 = d->computeSinglePathInMesh(v2, v3);
+p3to1 = d->computeSinglePathInMesh(v3, v1);
+
+i_path1to2 = p1to2;
+i_path2to3 = p2to3;
+i_path3to1 = p3to1;
+
+periphery.insert(periphery.begin(), p1to2.begin(), p1to2.end());
+periphery.insert(periphery.begin(), p2to3.begin(), p2to3.end());
+periphery.insert(periphery.begin(), p3to1.begin(), p3to1.end());
+
+vector<bool> v(mesh->verts.size(), true);
+visited = v;
+
+int o = findInsideVert();
+std::cout << "Flood fill vertex: " << o << endl;
+floodFill(o);
+
+insideVerts.insert(insideVerts.begin(), p1to2.begin(), p1to2.end());
+insideVerts.insert(insideVerts.begin(), p2to3.begin(), p2to3.end());
+insideVerts.insert(insideVerts.begin(), p3to1.begin(), p3to1.end());
+
+remove_duplicates(insideVerts);
+
+std::vector<int> mTriangles = verts2triIds(insideVerts);
+
+std::cout << "Inside size: " << insideVerts.size() << endl;
+std::cout << "Triangles size: " << mTriangles.size() << endl;
+
+std::vector<int> old;
+std::vector<double> newVerts;
+std::vector<int> newTriangles;
+for (int i = 0; i < mTriangles.size(); i++)
+{
+int v1i = mesh->tris[mTriangles[i]]->v1i;
+int v2i = mesh->tris[mTriangles[i]]->v2i;
+int v3i = mesh->tris[mTriangles[i]]->v3i;
+
+int nv1, nv2, nv3;
+if (std::find(old.begin(), old.end(), v1i) != old.end()){ nv1 = std::find(old.begin(), old.end(), v1i) - old.begin(); }
+else { old.push_back(v1i); nv1 = old.size() - 1; }
+
+if (std::find(old.begin(), old.end(), v2i) != old.end()){ nv2 = std::find(old.begin(), old.end(), v2i) - old.begin(); }
+else { old.push_back(v2i); nv2 = old.size() - 1;  }
+
+if (std::find(old.begin(), old.end(), v3i) != old.end()){ nv3 = std::find(old.begin(), old.end(), v3i) - old.begin(); }
+else { old.push_back(v3i); nv3 = old.size() - 1; }
+
+newTriangles.push_back(nv1);
+newTriangles.push_back(nv2);
+newTriangles.push_back(nv3);
+}
+
+for (size_t i = 0; i < old.size(); i++)
+{
+newVerts.push_back(mesh->verts[old[i]]->coords[0]);
+newVerts.push_back(mesh->verts[old[i]]->coords[1]);
+newVerts.push_back(mesh->verts[old[i]]->coords[2]);
+}
+
+/*mesh = new Mesh();
+mesh->loadMesh(&newVerts, &newTriangles);
+}
 */

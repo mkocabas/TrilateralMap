@@ -16,14 +16,18 @@ ExactGeodesic::ExactGeodesic(char* filename)
 	mesh.initialize_mesh_data(points, faces);
 }
 
-ExactGeodesic::ExactGeodesic(std::vector<double> vs, std::vector<int> ts){
-	bool success = geodesic::convert_from_my_mesh(vs, ts, points, faces);
-	if (!success)
+ExactGeodesic::ExactGeodesic(std::vector<double> _vs, std::vector<int> _ts){
+
+	this->vs = _vs;
+	this->ts = _ts;
+	bool a = geodesic::convert_from_my_mesh(vs, ts, points, faces);
+	if (!a)
 	{
 		std::cout << "something is wrong with the input file" << std::endl;
 	}
-
-	mesh.initialize_mesh_data(points, faces);
+	
+	
+	this->success = mesh.initialize_mesh_data(points, faces);
 }
 
 ExactGeodesic::~ExactGeodesic()
@@ -38,7 +42,7 @@ void ExactGeodesic::computeSinglePath(int source_vertex_index, int target_vertex
 	std::vector<geodesic::SurfacePoint> path;
 	algorithm.geodesic(source, target, path);
 
-	print_info_about_path(path);
+	//print_info_about_path(path);
 
 
 	for (unsigned i = 0; i < path.size(); ++i)
@@ -68,9 +72,10 @@ void ExactGeodesic::computeSinglePath(int source_vertex_index, int target_vertex
 	std::vector<geodesic::SurfacePoint> path;
 	algorithm.geodesic(source, target, path);
 
-	print_info_about_path(path);
+	//print_info_about_path(path);
 
 	meshUpdate(&path, distances);
+
 	myMesh = new Mesh();
 	myMesh->loadMesh(&vs, &ts);
 	std::vector<double> points;
@@ -264,7 +269,7 @@ void ExactGeodesic::meshUpdate(std::vector<geodesic::SurfacePoint> *path){
 		}
 		else if (type1 + type2 == 0)
 		{
-			std::cout << "Not on edge" << endl;
+			//std::cout << "Not on edge" << endl;
 		}
 		temp = b2->id();
 	}
@@ -474,7 +479,7 @@ void ExactGeodesic::meshUpdate(std::vector<geodesic::SurfacePoint> *path, std::v
 			dist += v2.distance(&v1);
 			distances->push_back(make_pair(b2->id(), dist));
 
-			std::cout << "Not on edge" << endl;
+			//std::cout << "Not on edge" << endl;
 		}
 	}
 }

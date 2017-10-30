@@ -304,6 +304,7 @@ inline void GeodesicAlgorithmExact::list_edges_visible_from_source(MeshElementBa
 		vertex_pointer v = static_cast<vertex_pointer>(p);
 		for(unsigned i=0; i<v->adjacent_edges().size(); ++i)
 		{
+			//std::cout << v->adjacent_edges().size() << " " << i << std::endl;
 			storage.push_back(v->adjacent_edges()[i]);
 		}
 

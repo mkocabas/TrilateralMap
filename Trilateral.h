@@ -37,7 +37,7 @@ struct tri
 class Trilateral
 {
 public:
-	Trilateral(int v1, int v2, int v3, int gridSize, Mesh* m, char* filename);
+	Trilateral(int gridSize, char* filename);
 	~Trilateral();
 
 	typedef std::vector<std::pair<int, double>> path_t;
@@ -48,9 +48,13 @@ public:
 
 	Mesh* mesh;
 	ExactGeodesic* geo;
-	std::string f_name;
+	std::string meshFilename;
+	std::string histogramFilename;
+	char* fname;
 	Dijkstra* d;
 	int v1, v2, v3, gridSize;
+
+	int ov1, ov2, ov3;
 	//verts_t insideVerts;
 	path_t path1to2, path2to3, path3to1;
 	verts_t i_path1to2, i_path2to3, i_path3to1;
@@ -61,6 +65,8 @@ public:
 	verts_t is;
 	std::vector<std::vector<int>> intersections;
 
+	int recursionIteration = 0;
+	int recursionLimit = 800;
 	std::vector<path_t> inter1, inter2;
 	std::vector<std::vector<int>> inter1_dijkstra, inter2_dijkstra;
 
@@ -70,21 +76,27 @@ public:
 
 	/* Trilateral meta calc */
 	void init();
+
+	int initialize(int a, int b, int c);
+	int getBoundary();
+	int extractMesh();
+	int constructInnerTris();
+
+
 	void getSampleVertices(path_t *path, verts_t *samples);
 	void fillInterPaths(verts_t *sample1, verts_t *sample2, std::vector<path_t> *inter);
 	void fillInterPathsDijkstra(verts_t *sample1, verts_t *sample2, std::vector<verts_t> *inter_dijkstra);
 	
-	void ratherThanInit();
-	int betterThanInit();
 	/* Area & histogram calc */
-	void findIntersections();
-	void findChunks();
-	void combineChunks();
+	int findIntersections();
+	int findChunks();
+	int combineChunks();
 	void q_runFloodFill(quad q, int in);
 	void t_runFloodFill(tri q, int in);
-	void getTriArea();
-	void getQuadArea();
-	void getAreaHistogram(bool print);
+	int getTriArea();
+	int getQuadArea();
+	int getAreaHistogram();
+	int print2File();
 
 	std::vector<bool> quadVisited;
 	std::vector<int> inQuad;
@@ -119,17 +131,16 @@ public:
 	/* Flood fill algo */
 	void floodFill(int v);
 	int findInsideVert();
+	int findInsideVert_new();
 	void fillPaths2Inside(verts_t *p);
 	void visit(int v);
 	bool stopTest(int v);
 	bool checkIn(d_vect distS1, d_vect distS2, d_vect distS3, int v);
 	vector<bool> visited;
-	
-	
 
 	/* Vertex normal calculations */
 	float angleDegreeBetweenVectors(int p1, int p2);
-	void getNormalVectors();	
+	std::vector<array<double, 3>> getNormalVectors();
 };
 #endif
 	
