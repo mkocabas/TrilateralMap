@@ -37,7 +37,7 @@ struct tri
 class Trilateral
 {
 public:
-	Trilateral(int gridSize, char* filename);
+	Trilateral(int gridSize, char* filename, char* outputFileName);
 	~Trilateral();
 
 	typedef std::vector<std::pair<int, double>> path_t;

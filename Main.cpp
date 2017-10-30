@@ -145,9 +145,8 @@ std::vector<int> getIntVector(std::vector<std::pair<int, double>> *p){
 
 int main(int, char ** argv){
 
-	/*SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
-	_set_abort_behavior(0, _WRITE_ABORT_MS*/
-
+	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
+	_set_abort_behavior(0, _WRITE_ABORT_MSG);
 	int selection = atoi(argv[1]);
 
 	switch (selection)
@@ -580,16 +579,42 @@ void TrilateralTest(char ** argv){
 	int b = atoi(argv[4]);
 	int c = atoi(argv[5]);
 
-	root->addChild(painter->get1PointSep(mesh, a, Painter::blue));
+	/*root->addChild(painter->get1PointSep(mesh, a, Painter::blue));
 	root->addChild(painter->get1PointSep(mesh, b, Painter::red));
-	root->addChild(painter->get1PointSep(mesh, c, Painter::yellow));
+	root->addChild(painter->get1PointSep(mesh, c, Painter::yellow));*/
 
 
-	Trilateral *t = new Trilateral(5, filename);
+	Trilateral *t = new Trilateral(7, filename, "output.txt");
 	//std::vector<std::array<double,3>> vertNorm = t->getNormalVectors();
 	int f = t->initialize(a, b, c);
 
-	//std::cout << "Vayyy: "<< f << endl;
+	for (size_t i = 0; i < t->intersections.size(); i++)
+			root->addChild(painter->getMultiplePointSep(t->geo->myMesh, t->intersections[i], Painter::yellow));
+
+	for (size_t i = 0; i < t->inter1_dijkstra.size(); i++)
+		root->addChild(painter->drawLineSet(t->geo->myMesh, t->inter1_dijkstra[i]));
+
+	for (size_t i = 0; i < t->inter2_dijkstra.size(); i++)
+		root->addChild(painter->drawLineSet(t->geo->myMesh, t->inter2_dijkstra[i], Painter::green));
+
+	for (size_t i = 0; i < t->intersections.size(); i++)
+	{
+		for (size_t j = 0; j < t->intersections[i].size(); j++)
+		{
+			SoSeparator *africaSep = new SoSeparator;
+			SoTranslation *africaTranslate = new SoTranslation;
+			SoText2 *africaText = new SoText2;
+			africaTranslate->translation.setValue(t->geo->myMesh->verts[t->intersections[i][j]]->coords[0],
+				t->geo->myMesh->verts[t->intersections[i][j]]->coords[1],
+				t->geo->myMesh->verts[t->intersections[i][j]]->coords[2]);
+			africaText->string = t->intersections[i][j];
+			root->addChild(africaSep);
+			africaSep->addChild(africaTranslate);
+			africaSep->addChild(africaText);
+		}
+	}
+
+	std::cout << "Vayyy: "<< f << endl;
 	
 	/*root->addChild(painter->getMultiplePointSep(t->geo->myMesh, t->sample1to2));
 	root->addChild(painter->getMultiplePointSep(t->geo->myMesh, t->sample2to3));
@@ -600,7 +625,9 @@ void TrilateralTest(char ** argv){
 	root->addChild(painter->drawLineSet(t->geo->myMesh, t->i_path3to1, Painter::red));*/
 
 
-	root->addChild(painter->getShapeSep(mesh, Painter::grey));
+	//root->addChild(painter->getShapeSep(mesh, Painter::grey));
+	//root->addChild(painter->getShapeSep(t->geo->myMesh, Painter::grey));
+
 	viewer->setSize(SbVec2s(1280, 960));
 	viewer->setSceneGraph(root);
 	viewer->show();
@@ -623,7 +650,7 @@ void TrilateralPlain(char ** argv){
 	std::cout << a << " " << b << " " << c << endl;
 
 	// Initialize
-	Trilateral *t = new Trilateral(grid, meshFname);
+	Trilateral *t = new Trilateral(grid, meshFname, "output.txt");
 	std::vector<array<double, 3>> vertNorms = t->getNormalVectors();
 	t->vertNormals = vertNorms;
 	int r = t->initialize(a, b, c);
@@ -666,7 +693,7 @@ void ExtractTest(char ** argv){
 
 	clock_t tClock1 = clock();
 
-	Trilateral *base = new Trilateral(gridSize, filename);
+	Trilateral *base = new Trilateral(gridSize, filename, "output.txt");
 	int out = base->initialize(a, b, c);
 	
 	std::cout << "\nExecution time for Trilateral: " << (double)(clock() - tClock1) / CLOCKS_PER_SEC << endl;
@@ -679,6 +706,8 @@ void TrilateralIsomorphicMatching(char ** argv){
 	int grid = atoi(argv[3]);
 	std::string fname = argv[4];
 	int start = atoi(argv[5]);
+	char* outputFileName = argv[6];
+	char* statusFile = argv[7];
 
 	std::cout << meshFname << endl;
 	std::cout << grid << endl;
@@ -705,28 +734,29 @@ void TrilateralIsomorphicMatching(char ** argv){
 	}
 	std::cout << "Number of combinations: " << combinations.size() << endl;
 	std::cout << "Start computing histograms" << endl;
+	std::cout << "Output file: " << outputFileName << endl;
 
 	std::vector<tuple3> missedTuples;
 	std::vector<tuple3> processedTuples;
 
-	Trilateral *t = new Trilateral(grid, meshFname);
+	Trilateral *t = new Trilateral(grid, meshFname, outputFileName);
 
-	std::vector<array<double, 3>> vertNorms = t->getNormalVectors();
-
+	//std::vector<array<double, 3>> vertNorms = t->getNormalVectors();
+	clock_t tClock = clock();
 	for (size_t i = start; i < combinations.size(); i++)
 	{
 
 		std::ofstream status_log_file;
-		status_log_file.open("status-log.txt", std::ofstream::out);
+		status_log_file.open(statusFile, std::ofstream::out);
 		status_log_file << std::to_string(i);
 		status_log_file.close();
 
 
 		clock_t tClock1 = clock();
 
-		Trilateral *t = new Trilateral(grid, meshFname);
+		Trilateral *t = new Trilateral(grid, meshFname, outputFileName);
 		int a = combinations[i].a, b = combinations[i].b, c = combinations[i].c;
-		t->vertNormals = vertNorms;
+		//t->vertNormals = vertNorms;
 		std::cout << i << "/" << combinations.size() << " - " << a << " " << b << " " << c << endl;
 		int r = t->initialize(a, b, c);
 
@@ -740,6 +770,7 @@ void TrilateralIsomorphicMatching(char ** argv){
 		}
 		//delete t;
 	}
+	std::cout << "Total elapsed time: " << (double)(clock() - tClock) / CLOCKS_PER_SEC << " sec." << endl;
 	
 }
 

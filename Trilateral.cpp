@@ -37,6 +37,8 @@ std::vector<int> slice(std::vector<int> v, int start, int end) {
 	assert(start != end);
 	assert(start >= 0 && end >= 0 && start != end);
 
+	
+
 	if (start < 0 && end < 0 && start == end){
 		std::vector<int> a;
 		return a;
@@ -46,13 +48,15 @@ std::vector<int> slice(std::vector<int> v, int start, int end) {
 		end = start;
 		start = temp;
 	}
+	//print_vector("v: ", v);
 	//std::cout << "start - end: " << start << "," << end << endl;
 	std::vector<int> nv;
 
 	for (int i = 0; i <= end - start; i++){
 		nv.push_back(v[start + i]);
 		//std::cout << "s: " << v[start + i] << endl;
-	}		
+	}
+	//print_vector("nv: ", nv);
 	return nv;
 }
 
@@ -63,7 +67,7 @@ void remove_duplicates(std::vector<int>& v)
 	v.erase(last, v.end());
 }
 
-Trilateral::Trilateral(int _gridSize, char* filename)
+Trilateral::Trilateral(int _gridSize, char* filename, char* outputFileName)
 {
 	mesh = new Mesh;
 	mesh->loadOff(filename);
@@ -73,7 +77,7 @@ Trilateral::Trilateral(int _gridSize, char* filename)
 	//std::string str(filename);
 	meshFilename = filename;
 	
-	histogramFilename = "logs/histogram-" + meshFilename.substr(5) + ".txt";
+	histogramFilename = outputFileName;
 }
 
 Trilateral::~Trilateral()
@@ -124,12 +128,12 @@ int Trilateral::initialize(int a, int b, int c){
 		std::cout << "Triangles couldn't be created." << endl;
 		return -3;
 	}
-		
+
 	int p4 = findIntersections();
 
 	if (p4 <= 0)
 		return -4;
-
+	
 	int p5 = findChunks();
 
 	if (p5 <= 0)
@@ -174,6 +178,7 @@ int Trilateral::getBoundary(){
 	geo->computeSinglePath(v1, v2, &path1to2);
 	geo->computeSinglePath(v2, v3, &path2to3);
 	geo->computeSinglePath(v3, v1, &path3to1);
+	
 	mesh = geo->myMesh;
 
 	// reverse them to read correctly
@@ -357,15 +362,15 @@ int Trilateral::constructInnerTris()
 	getSampleVertices(&path2to3, &sample2to3);
 	getSampleVertices(&path3to1, &sample3to1);
 
-	print_vector("sample1to2: ", sample1to2);
+	/*print_vector("sample1to2: ", sample1to2);
 	print_vector("sample2to3: ", sample2to3);
 	print_vector("sample3to1: ", sample3to1);
-	std::cout << "sample verts done" << endl;
+	std::cout << "sample verts done" << endl;*/
 
 	/* Reverse sample vectors to properly find inter paths between them */
-	/*std::reverse(sample1to2.begin(), sample1to2.end());
+	std::reverse(sample1to2.begin(), sample1to2.end());
 	std::reverse(sample2to3.begin(), sample2to3.end());
-	std::reverse(sample3to1.begin(), sample3to1.end());*/
+	std::reverse(sample3to1.begin(), sample3to1.end());
 
 	auto it = std::unique(sample1to2.begin(), sample1to2.end());
 	bool wasUnique1to2 = (it == sample1to2.end());
@@ -472,7 +477,8 @@ int Trilateral::getAreaHistogram(){
 int Trilateral::print2File(){
 
 	std::cout << "OK" << endl;
-	mkdir("logs");
+	
+	//mkdir("logs");
 
 	/*for (size_t i = 0; i < histogram.size(); i++)
 		print_vector("", histogram[i]);*/
@@ -834,16 +840,55 @@ int Trilateral::findIntersections(){
 }
 
 int Trilateral::findChunks(){
+
+	/*verts_t p1to2, p2to3, p3to1;
+	p1to2 = getIntVector_(&path1to2);
+	p2to3 = getIntVector_(&path2to3);
+	p3to1 = getIntVector_(&path3to1);
+
+	print_vector("p1to2: ", p1to2);
+	print_vector("p2to3: ", p2to3);
+	print_vector("p3to1: ", p3to1);*/
+
 	/* Find chunks */
 	inter1_dijkstra.push_back(getIntVector_(&path3to1));
-
 	inter2_dijkstra.insert(inter2_dijkstra.begin(), getIntVector_(&path2to3));
 
+	//inter1_dijkstra.insert(inter1_dijkstra.begin(), getIntVector_(&path3to1));
+	//inter2_dijkstra.push_back(getIntVector_(&path2to3));
+
+	/*for (size_t i = 0; i < intersections.size(); i++){
+		print_vector("int: ", intersections[i]);
+	}*/
 	/*std::cout << "inter 1 size: " << inter1_dijkstra.size() << endl;
 	std::cout << "inter 2 size: " << inter2_dijkstra.size() << endl;*/
 	intersections.pop_back();
+
+
+	/////////////////////////////////////////////////////////////////////////
+	/*for (size_t i = 0; i < intersections.size(); i++){
+		int r = intersections[i][intersections[i].size() - 1];
+		intersections[i].insert(intersections[i].begin(), r);
+		intersections[i].pop_back();
+
+		std::reverse(intersections[i].begin(), intersections[i].end());
+
+		print_vector("int: ", intersections[i]);
+	}
+		
+	std::reverse(inter1_dijkstra.begin(), inter1_dijkstra.end());
+	std::reverse(inter2_dijkstra.begin(), inter2_dijkstra.end());*/
+
+	/*for (size_t i = 0; i < inter2_dijkstra.size(); i++)
+		print_vector("path2: ", inter2_dijkstra[i]);
+
+	for (size_t i = 0; i < inter1_dijkstra.size(); i++)
+		print_vector("path1: ", inter1_dijkstra[i]);*/
+	/////////////////////////////////////////////////////////////////////////
+	//return -1;
 	//std::cout << "intersection size: " << intersections.size() << endl;
 	// Walk over inter paths and slice them
+	/////////////////////////////////////////////////////////////////////
 	for (size_t i = 0; i < intersections.size() - 1; i++)
 	{
 		//std::cout << "buyuk resim: " << i << endl;
@@ -880,7 +925,7 @@ int Trilateral::findChunks(){
 				//print_vector("int1first: ", int1first);
 				//print_vector("tr: ", tr.corners);
 
-
+				//return -1;
 				i_v1tr = std::find(int2first.begin(), int2first.end(), tr.v1q) - int2first.begin();
 				i_v2tr = std::find(int2first.begin(), int2first.end(), tr.v2q) - int2first.begin();
 				tr.chunk1to2 = slice(int2first, i_v1tr, i_v2tr);
@@ -985,6 +1030,7 @@ int Trilateral::findChunks(){
 
 		}
 	}
+	/////////////////////////////////////////////////////////////////////
 	tri tr;
 	tr.v1q = intersections[intersections.size() - 1].at(0);
 	tr.v2q = intersections[intersections.size() - 1][1];;

@@ -1,40 +1,40 @@
-﻿Build started 30.10.2017 08:44:30.
+﻿Build started 30.10.2017 13:22:25.
      1>Project "C:\Users\Bertec\Documents\Visual Studio 2013\Projects\TrilateralMap\TrilateralMap\TrilateralMap.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\Coin3D\include /ZI /nologo /W3 /WX- /Od /Oy- /D "WIN32" /D _DEBUG /D _CONSOLE /D "_LIB" /D "COIN_DLL" /D "SOWIN_DLL" /D "_UNICODE" /D "UNICODE" /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Trilateral.cpp
          Trilateral.cpp
      1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\geodesic_algorithm_base.h(97): warning C4018: '<' : signed/unsigned mismatch
      1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\geodesic_algorithm_base.h(99): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(184): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(266): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(449): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(475): warning C4996: 'mkdir': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _mkdir. See online help for details.
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(188): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(270): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(453): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(479): warning C4996: 'mkdir': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _mkdir. See online help for details.
                  c:\program files (x86)\microsoft visual studio 12.0\vc\include\direct.h(140) : see declaration of 'mkdir'
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(512): warning C4244: 'initializing' : conversion from 'std::streamoff' to 'size_t', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(670): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(703): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(778): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(794): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(516): warning C4244: 'initializing' : conversion from 'std::streamoff' to 'size_t', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(674): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(707): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(782): warning C4018: '<' : signed/unsigned mismatch
      1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(798): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1060): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1073): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1088): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(802): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1098): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1111): warning C4018: '<' : signed/unsigned mismatch
      1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1126): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1133): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1135): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1136): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1137): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1156): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1157): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1158): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1160): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1161): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1162): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1171): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1283): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1303): warning C4018: '>' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1304): warning C4018: '>' : signed/unsigned mismatch
-     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1305): warning C4018: '>' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1164): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1171): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1173): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1174): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1175): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1194): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1195): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1196): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1198): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1199): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1200): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1209): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1321): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1341): warning C4018: '>' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1342): warning C4018: '>' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\trilateral.cpp(1343): warning C4018: '>' : signed/unsigned mismatch
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Bertec\Documents\Visual Studio 2013\Projects\TrilateralMap\Debug\TrilateralMap.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\Coin3D\lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib coin2d.lib sowin1d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Bertec\Documents\Visual Studio 2013\Projects\TrilateralMap\Debug\TrilateralMap.pdb" /SUBSYSTEM:CONSOLE /STACK:"8","2" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Bertec\Documents\Visual Studio 2013\Projects\TrilateralMap\Debug\TrilateralMap.lib" /MACHINE:X86 Debug\Dijkstra.obj
          Debug\ExactGeodesic.obj
@@ -47,4 +47,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.35
+Time Elapsed 00:00:01.03

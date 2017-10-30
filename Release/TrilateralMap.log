@@ -1,37 +1,141 @@
-﻿Build started 30.10.2017 08:17:31.
+﻿Build started 30.10.2017 16:20:40.
      1>Project "C:\Users\Bertec\Documents\Visual Studio 2013\Projects\TrilateralMap\TrilateralMap\TrilateralMap.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\Coin3D\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D "WIN32" /D NDEBUG /D _CONSOLE /D "_LIB" /D "COIN_DLL" /D "SOWIN_DLL" /D "_UNICODE" /D "UNICODE" /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Trilateral.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\Coin3D\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D "WIN32" /D NDEBUG /D _CONSOLE /D "_LIB" /D "COIN_DLL" /D "SOWIN_DLL" /D "_UNICODE" /D "UNICODE" /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Dijkstra.cpp ExactGeodesic.cpp Main.cpp Mesh.cpp Painter.cpp Trilateral.cpp
+         Dijkstra.cpp
+     1>Dijkstra.cpp(13): warning C4018: '<' : signed/unsigned mismatch
+     1>Dijkstra.cpp(15): warning C4018: '<' : signed/unsigned mismatch
+     1>Dijkstra.cpp(170): warning C4018: '<' : signed/unsigned mismatch
+     1>Dijkstra.cpp(202): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>Dijkstra.cpp(215): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>Dijkstra.cpp(250): warning C4018: '<' : signed/unsigned mismatch
+     1>Dijkstra.cpp(261): warning C4018: '<' : signed/unsigned mismatch
+         ExactGeodesic.cpp
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\geodesic_algorithm_base.h(97): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\geodesic_algorithm_base.h(99): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(90): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(144): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(147): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(150): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(200): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(203): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(206): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(237): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(240): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(243): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(281): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(340): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(343): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(346): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(402): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(405): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(408): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(441): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(444): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(447): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(507): warning C4018: '<' : signed/unsigned mismatch
+     1>ExactGeodesic.cpp(516): warning C4018: '<' : signed/unsigned mismatch
+         Main.cpp
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\geodesic_algorithm_base.h(97): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\geodesic_algorithm_base.h(99): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\fiboheap.h(56): warning C4003: not enough actual parameters for macro 'min'
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\fiboheap.h(526): warning C4003: not enough actual parameters for macro 'min'
+     1>Main.cpp(105): warning C4018: '<' : signed/unsigned mismatch
+     1>Main.cpp(108): warning C4018: '<' : signed/unsigned mismatch
+     1>Main.cpp(119): warning C4018: '<' : signed/unsigned mismatch
+     1>Main.cpp(130): warning C4018: '<' : signed/unsigned mismatch
+         Mesh.cpp
+     1>Mesh.cpp(7): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(211) : see declaration of 'fopen'
+     1>Mesh.cpp(10): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(15): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(18): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(22): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(24): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(32): warning C4018: '<' : signed/unsigned mismatch
+     1>Mesh.cpp(33): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Mesh.cpp(35): warning C4018: '<' : signed/unsigned mismatch
+     1>Mesh.cpp(41): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(211) : see declaration of 'fopen'
+     1>Mesh.cpp(44): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(49): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(52): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(59): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(61): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(73): warning C4018: '<' : signed/unsigned mismatch
+     1>Mesh.cpp(73): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Mesh.cpp(74): warning C4018: '<' : signed/unsigned mismatch
+     1>Mesh.cpp(79): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(211) : see declaration of 'fopen'
+     1>Mesh.cpp(82): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(87): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(90): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(94): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(96): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(230) : see declaration of 'fscanf'
+     1>Mesh.cpp(231): warning C4018: '<' : signed/unsigned mismatch
+         Painter.cpp
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\fiboheap.h(56): warning C4003: not enough actual parameters for macro 'min'
+     1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\fiboheap.h(526): warning C4003: not enough actual parameters for macro 'min'
+     1>Painter.cpp(17): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>Painter.cpp(22): warning C4018: '<' : signed/unsigned mismatch
+     1>Painter.cpp(25): warning C4018: '<' : signed/unsigned mismatch
+     1>Painter.cpp(41): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Painter.cpp(75): warning C4018: '<' : signed/unsigned mismatch
+     1>Painter.cpp(97): warning C4018: '<' : signed/unsigned mismatch
+     1>Painter.cpp(100): warning C4244: 'argument' : conversion from 'double' to 'const float', possible loss of data
+     1>Painter.cpp(119): warning C4018: '<' : signed/unsigned mismatch
+     1>Painter.cpp(122): warning C4244: 'argument' : conversion from 'double' to 'const float', possible loss of data
+     1>Painter.cpp(141): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Painter.cpp(194): warning C4244: 'argument' : conversion from 'double' to 'const float', possible loss of data
+     1>Painter.cpp(215): warning C4018: '<' : signed/unsigned mismatch
+     1>Painter.cpp(242): warning C4244: 'argument' : conversion from 'int' to 'const float', possible loss of data
+     1>Painter.cpp(265): warning C4018: '<' : signed/unsigned mismatch
+     1>Painter.cpp(267): warning C4244: 'argument' : conversion from 'double' to 'const float', possible loss of data
+     1>Painter.cpp(287): warning C4018: '<' : signed/unsigned mismatch
+     1>Painter.cpp(291): warning C4018: '<' : signed/unsigned mismatch
          Trilateral.cpp
      1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\geodesic_algorithm_base.h(97): warning C4018: '<' : signed/unsigned mismatch
      1>c:\users\bertec\documents\visual studio 2013\projects\trilateralmap\trilateralmap\geodesic_algorithm_base.h(99): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(184): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(266): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(449): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(475): warning C4996: 'mkdir': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _mkdir. See online help for details.
-                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\direct.h(140) : see declaration of 'mkdir'
-     1>Trilateral.cpp(512): warning C4244: 'initializing' : conversion from 'std::streamoff' to 'size_t', possible loss of data
-     1>Trilateral.cpp(670): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(703): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(778): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(794): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(798): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(1060): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(1073): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(1088): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(1126): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(1133): warning C4018: '<' : signed/unsigned mismatch
-     1>Trilateral.cpp(1135): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>Trilateral.cpp(1136): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>Trilateral.cpp(1137): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>Trilateral.cpp(1156): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>Trilateral.cpp(1157): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>Trilateral.cpp(1158): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>Trilateral.cpp(1160): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>Trilateral.cpp(1161): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>Trilateral.cpp(1162): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>Trilateral.cpp(1171): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
-     1>Trilateral.cpp(1283): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(189): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(271): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(454): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(518): warning C4244: 'initializing' : conversion from 'std::streamoff' to 'size_t', possible loss of data
+     1>Trilateral.cpp(676): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(709): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(784): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(800): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(804): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(1106): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(1119): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(1134): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(1172): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(1179): warning C4018: '<' : signed/unsigned mismatch
+     1>Trilateral.cpp(1181): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>Trilateral.cpp(1182): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>Trilateral.cpp(1183): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>Trilateral.cpp(1202): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>Trilateral.cpp(1203): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>Trilateral.cpp(1204): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>Trilateral.cpp(1206): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>Trilateral.cpp(1207): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>Trilateral.cpp(1208): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>Trilateral.cpp(1217): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>Trilateral.cpp(1329): warning C4018: '<' : signed/unsigned mismatch
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Bertec\Documents\Visual Studio 2013\Projects\TrilateralMap\Release\TrilateralMap.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:C:\Coin3D\lib kernel32.lib user32.lib gdi32.lib coin2d.lib sowin1d.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Bertec\Documents\Visual Studio 2013\Projects\TrilateralMap\Release\TrilateralMap.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Bertec\Documents\Visual Studio 2013\Projects\TrilateralMap\Release\TrilateralMap.lib" /MACHINE:X86 /SAFESEH Release\Dijkstra.obj
          Release\ExactGeodesic.obj
@@ -47,4 +151,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:03.29
+Time Elapsed 00:00:04.53
