@@ -175,13 +175,14 @@ int main(int, char ** argv){
 void UniformSampling(char ** argv){
 
 	char* meshFilename = argv[2];
-	char* numSamplesChar = argv[3];
+	int numSamples = atoi(argv[3]);
+	char* outputFileName = argv[4];
+
+	int visualize = atoi(argv[5]);
 
 	Mesh* mesh = new Mesh();
-	mesh->loadOff("Data/person1.off");
+	mesh->loadOff(meshFilename);
 	Dijkstra *d = new Dijkstra(mesh);
-	
-	int numSamples = atoi(numSamplesChar);
 
 	clock_t tClock1 = clock();
 	std::vector<int> samples = farthestPointSampling(mesh, numSamples);
@@ -191,8 +192,8 @@ void UniformSampling(char ** argv){
 
 	std::cout << combinations.size() << endl;
 
-	std::string f = meshFilename;
-	std::string fname = "" + f + ".txt";
+	//std::string f = meshFilename;
+	std::string fname = outputFileName;
 
 	std::ofstream file;
 	file.open(fname, std::ofstream::out);
@@ -212,36 +213,39 @@ void UniformSampling(char ** argv){
 		cout << "Unable to open file";
 	}
 
-	HWND window = SoWin::init(argv[0]);
-	SoWinExaminerViewer * viewer = new SoWinExaminerViewer(window);
-	SoSeparator * root = new SoSeparator;
-	root->ref();
-	Painter* painter = new Painter();
-	root->addChild(painter->getMultiplePointSep(mesh, samples, Painter::red));
-	//root->addChild(painter->getShapeSep(mesh, Painter::white));
+	if (visualize == 1){
+		HWND window = SoWin::init(argv[0]);
+		SoWinExaminerViewer * viewer = new SoWinExaminerViewer(window);
+		SoSeparator * root = new SoSeparator;
+		root->ref();
+		Painter* painter = new Painter();
+		root->addChild(painter->getMultiplePointSep(mesh, samples, Painter::red));
+		root->addChild(painter->getShapeSep(mesh, Painter::white));
 
-	for (size_t i = 0; i <samples.size(); i++)
-	{
-		SoSeparator *africaSep = new SoSeparator;
-		SoTranslation *africaTranslate = new SoTranslation;
-		SoText2 *africaText = new SoText2;
-		africaTranslate->translation.setValue(mesh->verts[samples[i]]->coords[0], 
-			mesh->verts[samples[i]]->coords[1], 
-			mesh->verts[samples[i]]->coords[2]);
-		africaText->string = samples[i];
-		root->addChild(africaSep);
-		africaSep->addChild(africaTranslate);
-		africaSep->addChild(africaText);
+		for (size_t i = 0; i <samples.size(); i++)
+		{
+			SoSeparator *africaSep = new SoSeparator;
+			SoTranslation *africaTranslate = new SoTranslation;
+			SoText2 *africaText = new SoText2;
+			africaTranslate->translation.setValue(mesh->verts[samples[i]]->coords[0],
+				mesh->verts[samples[i]]->coords[1],
+				mesh->verts[samples[i]]->coords[2]);
+			africaText->string = samples[i];
+			root->addChild(africaSep);
+			africaSep->addChild(africaTranslate);
+			africaSep->addChild(africaText);
+		}
+
+		viewer->setSize(SbVec2s(1280, 960));
+		viewer->setSceneGraph(root);
+		viewer->show();
+		viewer->setBackgroundColor(SbColor(0, 0, 0));
+		SoWin::show(window);
+		SoWin::mainLoop();
+		delete viewer;
+		root->unref();
 	}
-
-	viewer->setSize(SbVec2s(1280, 960));
-	viewer->setSceneGraph(root);
-	viewer->show();
-	viewer->setBackgroundColor(SbColor(0, 0, 0));
-	SoWin::show(window);
-	SoWin::mainLoop();
-	delete viewer;
-	root->unref();
+	
 
 }
 
